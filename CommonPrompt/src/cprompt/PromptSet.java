@@ -31,11 +31,11 @@ public abstract class PromptSet<T> {
 		
 		Pattern pattern = Pattern.compile("~\\d+");
 		Matcher matcher = pattern.matcher(promptText);
+		int number = -1;
 
         if(matcher.find()) {
         	
-        	int argsSize = Integer.parseInt(promptText.substring(matcher.start()+1, matcher.end()));
-        	System.out.println(argsSize);
+        	number = Integer.parseInt(promptText.substring(matcher.start()+1, matcher.end()));
         	
         	if (matcher.start() == 0) {
         		promptText = promptText.replaceFirst("~\\d+", "");
@@ -44,7 +44,7 @@ public abstract class PromptSet<T> {
         	}
         }
 
-		return argsSize <= 0 ? -1 : argsSize;
+		return number <= 0 ? -1 : number;
 	}
 
 	public PromptSet(String promptText, Class<T> inputType, Rule<T>[] rules) {
