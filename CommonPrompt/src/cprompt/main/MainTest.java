@@ -17,7 +17,7 @@ public class MainTest {
 				new PromptString("~2Entrez les noms de vos parents ?", ',')
 				);
 		
-		while(true) {
+		while(!cp.hasQuit()) {
 			cp.runPrompts();
 			cp.showAnswers();
 		}
