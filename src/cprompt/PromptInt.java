@@ -14,4 +14,16 @@ public class PromptInt extends PromptSet<Integer> {
 		super(promptText, Integer.class, ' ', rules);
 	}
 
+	@Override
+	public Integer getConversion(String s) {
+		try {
+			if (s.isBlank()) {
+				return null;
+			}
+			return Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			throw new NumberFormatException("--> Input must be an integer.\n--> Got "+s+" instead.");
+		}
+	}
+
 }

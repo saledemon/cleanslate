@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+import cprompt.exception.PromptCountException;
+import cprompt.exception.PromptQuitException;
 import cprompt.rule.RuleException;
 
 public class Prompter {
@@ -24,29 +26,40 @@ public class Prompter {
 		this.prompts = set;
 		this.quitCommand = quitCommand;
 	}
+	
+	public Object runPrompt(int prompt) {
+		hasQuit = false;
+		answers.clear();
+		System.out.println(prompts[prompt].getPromptText());
+		String answer = scan.nextLine();
+		Object ans;
+		
+		try {
+			ans = parseAnswer(answer, prompts[prompt]);
+		} catch (PromptQuitException f) {
+			System.out.println("QUIT");
+			hasQuit = true;
+			return null;
+		} catch (PromptCountException | NumberFormatException | RuleException e) {
+			System.out.println("\n"+e.getMessage()+"\n");
+			runPrompt(prompt);
+			return null;
+		}
+		
+		return ans;
+	}
 
 	
 	public LinkedList<Object> runPrompts() {
-		hasQuit = false;
-		answers.clear(); // reset prompts for looping prompts demands
 		
 		int i = 0;
 		while(i < prompts.length) {
-			System.out.println(prompts[i].getPromptText());
-			String answer = scan.nextLine();
-			Object ans;
-			
-			try {
-				ans = parseAnswer(answer, prompts[i]);
-			} catch (PromptCountException | NumberFormatException | RuleException e) {
-				System.out.println("\n"+e.getMessage()+"\n");
-				continue;
-			} catch (PromptQuitException f) {
-				System.out.println("QUIT");
-				hasQuit = true;
-				return null;
-			}
-			answers.addFirst(ans);
+				Object ans = runPrompt(i);
+				if (ans != null) {
+					answers.addFirst(ans);
+				} else {
+					return null;
+				}
 			i++;
 		}
 		
@@ -54,8 +67,9 @@ public class Prompter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends Object> Object parseAnswer(String answer, PromptSet<T> set) throws PromptCountException, 
-																NumberFormatException, RuleException, PromptQuitException {
+	private <T> Object parseAnswer(String answer, PromptSet<T> set) throws PromptCountException, 
+																NumberFormatException, RuleException,
+																PromptQuitException {
 		List<T> list = new ArrayList<T>();
 		String temp = "";
 		int i = 0;
@@ -64,10 +78,15 @@ public class Prompter {
 			throw new PromptQuitException();
 		}
 		
-		for(char c : answer.toCharArray()) {
+		for(char c : answer.trim().toCharArray()) {
 			if(c == set.getSeparator() || i == answer.length()-1) {
-				if(c != set.getSeparator()) temp += c;
-					T t = (T)PromptSet.getCorrectConversion(temp.trim(), set);
+				if (c!=set.getSeparator()) temp += c;
+					T t = set.getConversion(temp.trim());
+					if (t == null) {
+						temp = "";
+						i++;
+						continue;
+					}
 					set.validateRules(t);
 					list.add(t);
 					if (list.size() == set.getArgsSize()) {

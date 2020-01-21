@@ -1,4 +1,4 @@
-package cprompt;
+package cprompt.exception;
 
 public class PromptCountException extends Exception {
 

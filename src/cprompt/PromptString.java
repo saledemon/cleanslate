@@ -31,4 +31,9 @@ public class PromptString extends PromptSet<String> {
 		super(promptText, String.class, separator, rules);
 	}
 
+	@Override
+	public String getConversion(String s) {
+		return s;
+	}
+
 }

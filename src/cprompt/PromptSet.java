@@ -47,9 +47,6 @@ public abstract class PromptSet<T> {
 		return number <= 0 ? -1 : number;
 	}
 
-	public PromptSet(String promptText, Class<T> inputType, Rule<T>[] rules) {
-		this(promptText, inputType, ' ', rules);
-	}
 	
 	public String getPromptText() {
 		return promptText;
@@ -78,22 +75,7 @@ public abstract class PromptSet<T> {
 			rule.isValid(val);
 		}
 	}
-	
-	
-	public static <T extends Object> Object getCorrectConversion(String s, PromptSet<T> set) throws NumberFormatException {
-		switch (set.getInputType().getSimpleName()) {
-		case "Integer":
-			try {
-				return Integer.parseInt(s);
-			} catch (NumberFormatException e) {
-				throw new NumberFormatException("--> Input must be an integer.\n--> Got "+s+" instead.");
-			}
-		case "String":
-			return s;
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + set.getInputType().getClass().getName());
-		}
-	}
-	
+
+	public abstract T getConversion(String s);
 	
 }
